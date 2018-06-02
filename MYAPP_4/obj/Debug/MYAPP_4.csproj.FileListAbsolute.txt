@@ -7,3 +7,4 @@ F:\vs2017\MYAPP_4\MYAPP_4\obj\Debug\MYAPP_4.csproj.CoreCompileInputs.cache
 F:\vs2017\MYAPP_4\MYAPP_4\obj\Debug\MYAPP_4.exe
 F:\vs2017\MYAPP_4\MYAPP_4\obj\Debug\MYAPP_4.pdb
 F:\vs2017\MYAPP_4\MYAPP_4\obj\Debug\MYAPP_4.Resources.Resource1.resources
+F:\vs2017\MYAPP_4\MYAPP_4\obj\Debug\MYAPP_4.csprojResolveAssemblyReference.cache

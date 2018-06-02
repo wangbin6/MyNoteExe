@@ -22,17 +22,27 @@ namespace MYAPP_4
         private String openedFilePath = "";
         //是否已保存当前文档，默认已保存
         private Boolean isSaved = true;
-
+        //提示是否保存的弹窗
         SimpleDialogBox isSavedDialog;
-
         static Program program;
 
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            //实例化窗口类
             program = new Program();
+
+            //处理拖动txt文件到exe处理
+            if (args.Length >= 1)
+            {
+                //args[0];//文件路径
+                program.OpenFileOnDragExe(args[0]);
+            }
+
+            //文本文本窗体居中屏幕显示
             program.StartPosition = FormStartPosition.CenterScreen;
 
+            //打开窗口
             Application.Run(program);
         }
 
@@ -58,7 +68,7 @@ namespace MYAPP_4
 
             miExit.DefaultItem = true;
 
-            MenuItem miFile = new MenuItem("文件", new MenuItem[] { miOpen, miSave, miSaveAs, miDash, miExit });
+            MenuItem miFile = new MenuItem("文件(&F)", new MenuItem[] { miOpen, miSave, miSaveAs, miDash, miExit });
 
             //编辑菜单
             MenuItem miSelectAll = new MenuItem("全选", new EventHandler(MenuFileSelectAllOnClick), Shortcut.CtrlA);
@@ -69,15 +79,18 @@ namespace MYAPP_4
 
             MenuItem miPaste = new MenuItem("粘贴", new EventHandler(MenuFilePasteOnClick), Shortcut.CtrlV);
 
-            MenuItem miEdit = new MenuItem("编辑", new MenuItem[] { miCut, miCopy, miPaste, miSelectAll });
+            MenuItem miEdit = new MenuItem("编辑(&E)", new MenuItem[] { miCut, miCopy, miPaste, miSelectAll });
+
+            //格式
+            MenuItem miFont = new MenuItem("字体...(&F)", new EventHandler(MenuFontOnClick));
+            MenuItem miFormat = new MenuItem("格式(&O)", new MenuItem[] { miFont });
 
             //帮助菜单
-
             MenuItem miAbout = new MenuItem("关于", new EventHandler(MenuFileAboutOnClick));
 
-            MenuItem miHelp = new MenuItem("帮助", new MenuItem[] { miAbout });
+            MenuItem miHelp = new MenuItem("帮助(&H)", new MenuItem[] { miAbout });
 
-            Menu = new MainMenu(new MenuItem[] { miFile, miEdit, miHelp });
+            Menu = new MainMenu(new MenuItem[] { miFile, miEdit, miFormat, miHelp });
 
             //文本输入编辑区域
             textBox = new TextBox();
@@ -89,6 +102,8 @@ namespace MYAPP_4
             textBox.AcceptsTab = true;
             textBox.Font = new Font(FontFamily.GenericSansSerif,16, FontStyle.Regular);
             textBox.TextChanged += new EventHandler(TextChangedEvent);
+            textBox.AllowDrop = true;
+            textBox.DragDrop += new DragEventHandler(TextBox_DragDrop);
 
             //状态栏
             StatusStrip statusStrip = new StatusStrip();
@@ -108,7 +123,15 @@ namespace MYAPP_4
             ToolStripStatusLabel toolStripStatusLabel2 = new ToolStripStatusLabel();
 
             toolStripStatusLabel1.Text = "状态栏";
+            toolStripStatusLabel1.BorderSides = ToolStripStatusLabelBorderSides.None;
+            toolStripStatusLabel1.Spring = true;
+
             toolStripStatusLabel2.Text = "当前时间：" + DateTime.Now.ToString();
+
+            //toolStripStatusLabel1.BorderSides = ToolStripStatusLabelBorderSides.All;
+            //toolStripStatusLabel2.BorderSides = ToolStripStatusLabelBorderSides.All;
+            //toolStripStatusLabel1.BorderStyle = Border3DStyle.Sunken;
+            //toolStripStatusLabel2.BorderStyle = Border3DStyle.Sunken;
 
             MyUnits myUnits = new MyUnits(toolStripStatusLabel2);//公共函数类
 
@@ -116,9 +139,34 @@ namespace MYAPP_4
 
             statusStrip.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1,toolStripStatusLabel2 });
 
+            Controls.Add(textBox);
             Controls.Add(statusStrip);
-            
 
+        }
+
+        private void TextBox_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files != null && files.Length != 0)
+            {
+                textBox.Text = files[0];
+            }
+        }
+
+        /// <summary>
+        /// 打开通过拖拽txt文件到exe图标中的文件
+        /// </summary>
+        /// <param name="FilePath">文件路径</param>
+        public void OpenFileOnDragExe(string FilePath)
+        {
+            StreamReader streamReader = new StreamReader(FilePath, Encoding.UTF8);
+            textBox.Text = streamReader.ReadToEnd();
+            textBox.Select(textBox.TextLength, 0);
+
+            streamReader.Close();//关闭文件读取流
+
+            //设置文本保存标识为已保存
+            isSaved = true;
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -251,7 +299,7 @@ namespace MYAPP_4
         //剪切
         public void MenuFileCutOnClick(object o, EventArgs e)
         {
-
+            
         }
 
         //复制
@@ -309,6 +357,17 @@ namespace MYAPP_4
         public void MenuFileSelectAllOnClick(object o,EventArgs e)
         {
             textBox.SelectAll();
+        }
+
+        public void MenuFontOnClick(object o,EventArgs e)
+        {
+            FontDialog fontDialog = new FontDialog();
+
+            if (fontDialog.ShowDialog() == DialogResult.OK)
+            {
+                textBox.Font = fontDialog.Font;
+            }
+            
         }
 
         /// <summary>
