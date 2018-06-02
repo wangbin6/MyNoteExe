@@ -52,6 +52,7 @@ namespace MYAPP_4
             CheckForIllegalCrossThreadCalls = false;
 
             Text = "小新文本编辑器";
+            Icon = Resources.Resource1.MainIcon;//窗口图标
             Size = new Size(500, 400);
             //Icon = new Icon();
 
